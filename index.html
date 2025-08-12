@@ -1,0 +1,64 @@
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>مترجم تحاليل مختبرية</title><style>
+:root{--bg:#0b0f14;--panel:#0e1726;--muted:#9ca3af;--text:#e5e7eb;--border:#243142;--focus:#60a5fa}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;line-height:1.55}
+.container{max-width:1100px;margin:0 auto;padding:22px}
+header.header{margin:14px 0 18px;display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.title-block{display:flex;flex-direction:column;gap:6px}.app-title{margin:0;font-size:clamp(22px,4vw,34px);font-weight:800}
+.subtitle{margin:0;color:var(--muted);font-size:14px;line-height:1.7;max-width:60ch}.beta{color:var(--muted);font-size:12px}
+.grid{display:grid;grid-template-columns:1.15fr .85fr;gap:16px}@media (max-width:880px){.grid{grid-template-columns:1fr}}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:18px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media (max-width:680px){.row{grid-template-columns:1fr}}
+label{display:block;font-size:13px;color:var(--muted);margin:2px 2px 6px}
+select,input[type=number],input[type=text]{width:100%;padding:12px;border-radius:12px;border:1px solid var(--border);background:var(--panel);color:var(--text);outline:none}
+select:focus,input:focus{border-color:var(--focus);box-shadow:0 0 0 3px rgba(96,165,250,.20)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.chip{background:#0f172a;border:1px dashed var(--border);padding:6px 10px;border-radius:999px;font-size:12px;color:var(--muted)}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+button{appearance:none;border:1px solid var(--border);background:#0e1726;color:var(--text);padding:11px 14px;border-radius:12px;cursor:pointer}
+button:hover{background:#111c2e}
+.result{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:start;padding:12px;border-radius:14px;border:1px solid var(--border);background:#0c1420}
+.result+.result{margin-top:10px}.badge{padding:6px 10px;border-radius:999px;font-weight:700;font-size:12px}
+.low{background:#1e3a8a;color:#bfdbfe}.normal{background:#166534;color:#bbf7d0}.high{background:#7f1d1d;color:#fecaca}
+.muted{color:var(--muted);font-size:13px}.empty{text-align:center;color:var(--muted);padding:26px;border:1px dashed var(--border);border-radius:12px}
+footer.footer{margin-top:20px;text-align:center}.credit{display:inline-block;padding:10px 14px;border:1px solid var(--border);border-radius:12px;background:#0e1726;color:#9ca3af;font-size:13px}
+@media print{body{background:white}.beta,.actions,#inputsTitle,#inputsTitle ~ *{display:none !important}.card{box-shadow:none;border:none}.container{max-width:800px}.result{page-break-inside:avoid}}
+</style></head><body><div class="container"><header class="header"><div class="title-block"><h1 class="app-title">مترجم تحاليل مختبرية</h1><p class="subtitle">ليست للتشخيص الطبي، فقط للتثقيف الصحي، واحتمال الخطأ وارد، وقد تختلف القيم المرجعية حسب المختبر.</p></div><div class="beta">نسخة تجريبية</div></header><div class="grid"><section class="card"><h2 id="inputsTitle" style="margin:4px 0 10px;font-size:18px">بيانات المستخدم</h2><div class="row"><div><label>الجنس</label><select id="sex"><option value="female">أنثى</option><option value="male">ذكر</option></select></div><div><label>العمر (بالسنوات)</label><input id="age" type="number" min="0" max="120" placeholder="مثال: 30"></div></div><div class="row" style="margin-top:8px"><div><label>الوزن (كجم)</label><input id="weight" type="number" step="0.1" placeholder="اختياري"></div><div><label>الطول (سم)</label><input id="height" type="number" step="0.1" placeholder="اختياري"></div></div><div class="row" style="margin-top:8px"><div><label>هل تستخدم مميع دم؟</label><select id="anticoag"><option value="no">لا</option><option value="yes">نعم</option></select></div><div></div></div><hr style="border-color:transparent;border-bottom:1px solid #243142;margin:14px 0"><h3 style="margin:0 0 8px;font-size:16px">إضافة تحليل</h3><div class="row"><div><label>اسم التحليل</label><select id="test"></select><div class="chips" id="unitChip"></div></div><div><label>القيمة</label><input id="value" type="number" step="0.01" placeholder="مثال: 9"></div></div><div class="actions"><button id="addBtn">إضافة إلى النتائج</button><button id="clearBtn">مسح النتائج</button><button id="printBtn">تصدير PDF</button></div></section><section class="card"><h2 style="margin:4px 0 10px;font-size:18px">النتائج</h2><div id="results"></div><div id="empty" class="empty">لا توجد نتائج بعد.</div><h3 style="margin:16px 0 8px;font-size:16px">تحليل شامل</h3><div id="overall" class="empty">أضف أكثر من نتيجة لعرض تحليل شامل.</div></section></div><footer class="footer"><div class="credit">2025 — تم تطويره بواسطة <b>بيان عبدالله العجمي</b></div></footer></div><script>
+const TESTS={
+HGB:{name:'الهيموغلوبين (Hgb)',unit:'g/dL',ranges:{male:{low:13.5,high:17.5},female:{low:12.0,high:15.5}},explain:(v,c)=>v<getRange('HGB',c).low?'منخفض: احتمال أنيميا':v>getRange('HGB',c).high?'مرتفع':'طبيعي'},
+RBC:{name:'RBC',unit:'×10¹²/L',ranges:{male:{low:4.5,high:5.9},female:{low:4.1,high:5.1}},explain:(v,c)=>{const r=getRange('RBC',c);return v<r.low?'منخفض':v>r.high?'مرتفع':'طبيعي'}},
+HCT:{name:'Hct',unit:'%',ranges:{male:{low:41,high:53},female:{low:36,high:46}},explain:(v,c)=>{const r=getRange('HCT',c);return v<r.low?'منخفض':v>r.high?'مرتفع':'طبيعي'}},
+MCV:{name:'MCV',unit:'fL',ranges:{any:{low:80,high:100}},explain:v=>v<80?'صغير كرية':v>100?'كبير كرية':'طبيعي'},
+MCH:{name:'MCH',unit:'pg',ranges:{any:{low:27,high:33}},explain:v=>v<27?'منخفض':v>33?'مرتفع':'طبيعي'},
+RDW:{name:'RDW',unit:'%',ranges:{any:{low:11.5,high:14.5}},explain:v=>v>14.5?'مرتفع':'طبيعي'},
+WBC:{name:'WBC',unit:'×10⁹/L',ranges:{any:{low:4.0,high:11.0}},explain:v=>v<4?'منخفض':v>11?'مرتفع: التهاب':'طبيعي'},
+PLT:{name:'Platelets',unit:'×10⁹/L',ranges:{any:{low:150,high:450}},explain:v=>v<150?'منخفض':v>450?'مرتفع':'طبيعي'},
+FBG:{name:'سكر صائم',unit:'mg/dL',ranges:{any:{low:70,high:99}},explain:v=>v<70?'منخفض':v<=99?'طبيعي':v<=125?'ما قبل سكري':'مرتفع'},
+A1C:{name:'HbA1c',unit:'%',ranges:{any:{low:4.0,high:5.6}},explain:v=>v<5.7?'طبيعي':v<6.5?'ما قبل سكري':'يرجّح سكري'},
+FERR:{name:'Ferritin',unit:'ng/mL',ranges:{male:{low:30,high:400},female:{low:15,high:200}},explain:(v,c)=>{const r=getRange('FERR',c);return v<r.low?'منخفض: نقص حديد محتمل':v>r.high?'مرتفع':'طبيعي'}},
+VITB12:{name:'B12',unit:'pg/mL',ranges:{any:{low:200,high:900}},explain:v=>v<200?'منخفض':'طبيعي'},
+FOLATE:{name:'Folate',unit:'ng/mL',ranges:{any:{low:3,high:17}},explain:v=>v<3?'منخفض':'طبيعي'},
+TSH:{name:'TSH',unit:'µIU/mL',ranges:{any:{low:0.4,high:4.0}},explain:v=>v<0.4?'منخفض':v>4.0?'مرتفع':'طبيعي'},
+FT4:{name:'Free T4',unit:'ng/dL',ranges:{any:{low:0.8,high:1.8}},explain:v=>v<0.8?'منخفض':v>1.8?'مرتفع':'طبيعي'},
+VITD:{name:'Vitamin D',unit:'ng/mL',ranges:{any:{low:30,high:100}},explain:v=>v<20?'نقص':v<30?'غير كافٍ':'كافٍ'},
+CREA:{name:'Creatinine',unit:'mg/dL',ranges:{male:{low:0.74,high:1.35},female:{low:0.59,high:1.04}},explain:(v,c)=>{const r=getRange('CREA',c);return v>r.high?'مرتفع':'طبيعي'}},
+BUN:{name:'BUN',unit:'mg/dL',ranges:{any:{low:7,high:20}},explain:v=>v>20?'مرتفع':'طبيعي'},
+eGFR:{name:'eGFR',unit:'mL/min/1.73m²',ranges:{any:{low:60,high:999}},explain:v=>v>=60?'مقبول':'منخفض'},
+ALT:{name:'ALT',unit:'U/L',ranges:{male:{low:0,high:45},female:{low:0,high:35}},explain:(v,c)=>v>getRange('ALT',c).high?'مرتفع':'طبيعي'},
+AST:{name:'AST',unit:'U/L',ranges:{male:{low:0,high:40},female:{low:0,high:32}},explain:(v,c)=>v>getRange('AST',c).high?'مرتفع':'طبيعي'},
+ALP:{name:'ALP',unit:'U/L',ranges:{any:{low:44,high:147}},explain:v=>v>147?'مرتفع':'طبيعي'},
+TBIL:{name:'Total Bilirubin',unit:'mg/dL',ranges:{any:{low:0.1,high:1.2}},explain:v=>v>1.2?'مرتفع':'طبيعي'},
+LDL:{name:'LDL',unit:'mg/dL',ranges:{any:{low:0,high:99}},explain:v=>v<=99?'جيّد':'مرتفع'},
+HDL:{name:'HDL',unit:'mg/dL',ranges:{male:{low:40,high:999},female:{low:50,high:999}},explain:(v,c)=>v<getRange('HDL',c).low?'منخفض':'جيّد'},
+TG:{name:'Triglycerides',unit:'mg/dL',ranges:{any:{low:0,high:149}},explain:v=>v<=149?'طبيعي':'مرتفع'},
+TC:{name:'Total Chol',unit:'mg/dL',ranges:{any:{low:0,high:199}},explain:v=>v<200?'مرغوب':'مرتفع'},
+CA:{name:'Calcium',unit:'mg/dL',ranges:{any:{low:8.6,high:10.2}},explain:v=>v<8.6?'منخفض':v>10.2?'مرتفع':'طبيعي'},
+UA:{name:'Uric Acid',unit:'mg/dL',ranges:{male:{low:3.4,high:7.0},female:{low:2.4,high:6.0}},explain:(v,c)=>{const r=getRange('UA',c);return v>r.high?'مرتفع':'طبيعي'}}
+}; const els={sex:document.getElementById('sex'),age:document.getElementById('age'),weight:document.getElementById('weight'),height:document.getElementById('height'),anticoag:document.getElementById('anticoag'),test:document.getElementById('test'),value:document.getElementById('value'),addBtn:document.getElementById('addBtn'),clearBtn:document.getElementById('clearBtn'),unitChip:document.getElementById('unitChip'),results:document.getElementById('results'),empty:document.getElementById('empty'),overall:document.getElementById('overall'),printBtn:document.getElementById('printBtn')}; (function(){const options=Object.entries(TESTS).map(([k,t])=>`<option value="${k}">${t.name}</option>`).join('');els.test.innerHTML=options;updateUnitChip()})(); function updateUnitChip(){const code=els.test.value,t=TESTS[code];const r=getRange(code,getCtx());const chips=[`<span class="chip">الوحدة: ${t.unit}</span>`];if(r)chips.push(`<span class="chip">المرجعي: ${fmt(r.low)} – ${fmt(r.high)}</span>`);els.unitChip.innerHTML=chips.join('')}
+els.test.addEventListener('change',updateUnitChip);els.sex.addEventListener('change',updateUnitChip);els.age.addEventListener('input',updateUnitChip); const store=[]; els.addBtn.addEventListener('click',()=>{const code=els.test.value;const val=parseFloat(els.value.value);const age=parseFloat(els.age.value);if(!code||isNaN(val))return alert('أدخل قيمة');if(isNaN(age))return alert('أدخل عمرك');const ctx=getCtx();const t=TESTS[code];const r=getRange(code,ctx);const status=classify(val,r);const note=t.explain(val,ctx);store.unshift({code,val,status,note,ctx});els.value.value='';renderResults();renderOverall()});
+els.clearBtn.addEventListener('click',()=>{store.length=0;renderResults();renderOverall()}); function renderResults(){els.results.innerHTML=store.map(item=>{const t=TESTS[item.code];const badge=item.status==='low'?'low':item.status==='high'?'high':'normal';const r=getRange(item.code,item.ctx);return `<div class="result"><div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><strong>${t.name}</strong><span class="badge ${badge}">${label(item.status)}</span></div><div class="muted">القيمة: <b>${fmt(item.val)}</b> ${t.unit} • المرجعي: ${fmt(r.low)}–${fmt(r.high)} • ${item.ctx.sex==='male'?'ذكر':'أنثى'}, ${item.ctx.age} سنة</div><div style="margin-top:6px">${item.note}</div></div><div><button onclick="copyNote('${t.name}: ${fmt(item.val)} ${t.unit} — ${item.note}')">نسخ</button></div></div>`}).join('');els.empty.style.display=store.length?'none':'block'} function renderOverall(){const byCode=Object.fromEntries(store.map(x=>[x.code,x]));let lines=[];if(byCode.HGB&&byCode.FERR){if(byCode.HGB.status==='low'&&byCode.FERR.status==='low')lines.push('نقص حديد محتمل');else if(byCode.HGB.status==='low'&&byCode.FERR.status!=='low')lines.push('احتمال أنيميا غير نقص حديد')}if(byCode.WBC&&byCode.CRP){if(byCode.WBC.status==='high'&&byCode.CRP.status==='high')lines.push('احتمال التهاب أو عدوى')}if(byCode.PLT){if(els.anticoag.value==='yes'&&byCode.PLT.status==='low')lines.push('تنبيه: الصفائح منخفضة مع مميع')}els.overall.innerHTML=lines.length?lines.map(x=>`<div class="result">${x}</div>`).join(''):'أضف أكثر من نتيجة لعرض تحليل شامل.'} function getCtx(){return {sex:els.sex.value,age:parseFloat(els.age.value)||0}}
+function getRange(code,ctx){const t=TESTS[code];if(!t)return null;if(t.ranges.any)return t.ranges.any;const k=ctx.sex==='male'?'male':'female';return t.ranges[k]||t.ranges.any||null}
+function classify(val,r){if(!r)return 'normal';if(val<r.low)return 'low';if(val>r.high)return 'high';return 'normal'}
+function label(s){return s==='low'?'منخفض':s==='high'?'مرتفع':'طبيعي'}
+function fmt(x){return (Math.round(x*100)/100).toString()}
+async function copyNote(text){try{await navigator.clipboard.writeText(text);alert('تم النسخ')}catch(e){alert('انسخي يدويًا')}}
+els.printBtn.addEventListener('click',()=>window.print());
+</script></body></html>
